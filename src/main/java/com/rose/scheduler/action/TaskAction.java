@@ -49,6 +49,12 @@ public class TaskAction {
         return new Response("ok");
     }
 
+    @PostMapping("task/edit")
+    @ResponseBody
+    public Response edit(@RequestBody TaskWrapper taskInfo) throws Exception{
+        return new Response("ok");
+    }
+
     @PostMapping("/task/delete")
     @ResponseBody
     public Response delteTask(String name,String group) throws Exception{

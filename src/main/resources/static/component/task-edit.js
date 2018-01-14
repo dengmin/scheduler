@@ -62,10 +62,29 @@ define(['text!tpl/task-edit.html'], function (tpl) {
                     description: ''
                 }
             };
+
+            vm.$http.get("/task/groups").then(function (re) {
+                var taskGroupList = [];
+                var reData = re.body.data;
+                for (var i = 0; i < reData.length; i++) {
+                    taskGroupList.push({value: reData[i]});
+                }
+                data.taskGroupList = taskGroupList;
+            });
+
             data.initEditFormModelInProcess = true;
             vm.$http.get("/job/components").then(function (re) {
                 data.jobComponentList = re.body.data;
-                data.initEditFormModelInProcess = false;
+                if (editFor === "Edit"){
+                    var name = vm.$route.params.name;
+                    var group = vm.$route.params.group;
+                    vm.$http.get("/task/detail", {params: {name: name, group: group}}).then(function (re) {
+                        data.editTaskFormModel = re.body.data;
+                        data.initEditFormModelInProcess = false;
+                    });
+                }else {
+                    data.initEditFormModelInProcess = false;
+                }
             });
             return data;
         },

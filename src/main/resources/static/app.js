@@ -46,6 +46,7 @@ require(['vue', 'vue_router', 'vue_resource','ELEMENT', 'moment'], function(Vue,
             children: [
                 {path: '/tasks', component: view.tasks},
                 {path: '/task/new', component: view.task_edit, meta: {editFor: "New"}},
+                {path: '/task/edit/:group-:name', component: view.task_edit, meta: {editFor: "Edit"}},
                 {path: '/task/history', component: view.task_history},
                 {path: '/task/history/detail', component:view.task_history_detail}
             ]
