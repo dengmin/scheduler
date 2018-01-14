@@ -19,7 +19,11 @@ define(['text!tpl/task-history-detail.html'], function (tpl) {
         },
         methods: {
             formatLogContent: function (logContent) {
-                return new String(logContent).replace(/\r/g, "\n").replace(/(WARN.*)/g, "<span class='text-warning'>$1</span>").replace(/(ERROR.*)/g, "<span class='text-danger'>$1</span>");
+                var temp = document.createElement ("div");
+                (temp.textContent != undefined ) ? (temp.textContent = logContent) : (temp.innerText = logContent);
+                var output = temp.innerHTML;
+                temp = null;
+                return output;
             }
         }
     };
