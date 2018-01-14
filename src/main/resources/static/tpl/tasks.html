@@ -1,0 +1,98 @@
+<div class="content">
+    <div class="content-header">
+        <div class="breadcrumb">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{path:'/'}">Home</el-breadcrumb-item>
+                <el-breadcrumb-item>任务中心</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="title"><i class="iconfont icon-yy-task"></i> 任务中心</div>
+    </div>
+
+    <div class="content-body">
+        <el-form :inline="true" :model="queryFormModel">
+            <el-form-item label="任务名">
+                <el-input v-model="queryFormModel.name" placeholder=""></el-input>
+            </el-form-item>
+            <el-form-item label="任务组">
+                <el-select v-model="queryFormModel.group" placeholder="" style="width: 150px">
+                    <el-option label="全部" value=""></el-option>
+                    <el-option v-for="item in taskGroups" :label="item" :value="item"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-select v-model="queryFormModel.status" placeholder="" style="width: 150px">
+                    <el-option label="全部" value=""></el-option>
+                    <el-option label="等待" value="WAITING"></el-option>
+                    <el-option label="正常执行" value="ACQUIRED"></el-option>
+                    <el-option label="暂停" value="PAUSED"></el-option>
+                    <el-option label="执行中" value="EXECUTING"></el-option>
+                    <el-option label="完成" value="COMPLETE"></el-option>
+                    <el-option label="阻塞" value="BLOCKED"></el-option>
+                    <el-option label="暂停阻塞" value="PAUSED_BLOCKED"></el-option>
+                    <el-option label="错误" value="ERROR"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="query">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="goCreateTask"><i class="el-icon-plus"></i> 创建任务</el-button>
+            </el-form-item>
+        </el-form>
+        <div v-loading="queryLoading">
+            <template v-if="!queryResult.items || queryResult.items.length == 0">
+                <div class="box no-border">
+                    <div class="box-body">
+                        <div class="text-center text-text-silver">暂无记录</div>
+                    </div>
+                </div>
+            </template>
+            <div class="spr"></div>
+            <template v-for="item in queryResult.items">
+                <div class="box box-hover task-box">
+                    <div class="box-body">
+                        <el-row>
+                            <el-col :span="12" class="task-title">
+                                <h3 class="no-margin">
+                                    <el-tag :type="item.state == 'WAITING'?'primary':item.state == 'ACQUIRED'?'success':item.state == 'PAUSED'?'warning':'gray'" close-transition>{{item.state}}</el-tag>
+                                    {{item.group+"."+item.name}}
+                                    <el-button type="text" @click="$taskDetailDialog.open(item.name,item.group)"><i class="iconfont icon-detail"></i></el-button>
+                                </h3>
+                                <span style="font-size: 14px;" class="text-extra-light-silver">{{item.description||"无描述"}}</span>
+                            </el-col>
+                            <el-col :span="12" class="text-right">
+                                <span class="text-gray"><i class="iconfont icon-cog"></i> {{item.jobComponent}}</span>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    <div class="box-footer">
+                        <el-row>
+                            <el-col :span="12">
+                                下次执行：{{item.state !== 'COMPLETE'?$moment(item.nextFireTime).format("YYYY-MM-DD HH:mm:ss"):" - - "}}
+                            </el-col>
+                            <el-col :span="12" class="text-right">
+                                <template v-if="item.group === 'Manual'">
+                                    <div class="text-silver">手动任务</div>
+                                </template>
+                                <template v-else>
+                                    <el-button class="no-padding" type="text" v-if="item.state !== 'PAUSED' && item.state !== 'PAUSED_BLOCKED'" @click="pauseTask(item.name,item.group)"><i class="iconfont icon-pause"></i></el-button>
+                                    <el-button class="no-padding" type="text" v-if="item.state === 'PAUSED' || item.state === 'PAUSED_BLOCKED'" @click="resumeTask(item.name,item.group)"><i class="iconfont icon-play"></i></el-button>
+                                    <el-button class="no-padding" type="text" @click="executeTask(item.name,item.group)"><i class="iconfont icon-rocket"></i></el-button>
+                                    <el-button class="no-padding" type="text" @click="goEditTask(item.group,item.name)"><i class="iconfont icon-edit"></i></el-button>
+                                    <el-button class="no-padding" type="text" @click="deleteTask(item.name,item.group)"><i class="iconfont icon-trash"></i></el-button>
+                                </template>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </div>
+                <div class="spr"></div>
+            </template>
+            <templat v-if="queryResult.items && queryResult.items.length > 0">
+                <div class="text-right">
+                    <el-pagination class="no-padding" @current-change="changePage" :current-page="queryResult.page" :page-size="queryResult.pageSize" layout="total, prev, pager, next" :total="queryResult.total"></el-pagination>
+                </div>
+            </templat>
+        </div>
+    </div>
+</div>

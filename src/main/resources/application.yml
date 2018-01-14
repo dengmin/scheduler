@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: test
+server:
+  port: 8899
+
+logging:
+  level:
+    org.springframework.web: ERROR
+    com.rose.scheduler: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+
