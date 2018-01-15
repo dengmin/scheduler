@@ -45,7 +45,6 @@ public class TaskManagerImpl implements TaskManager{
 
     @Override
     public void createTask(TaskWrapper taskInfo) throws Exception{
-        scheduler.getTriggerGroupNames();
         //任务执行的组件
         Class<? extends JobComponent> jobComponentClass = JobStore.jobs.get(taskInfo.getJobComponent()).getClass();
         JobDataMap dataMap = new JobDataMap();
@@ -270,5 +269,44 @@ public class TaskManagerImpl implements TaskManager{
     @Override
     public TaskHistory detail(String fireId) {
         return taskDao.detail(fireId);
+    }
+
+    @Override
+    public void editTask(TaskWrapper taskInfo) throws Exception{
+        JobDataMap dataMap = new JobDataMap();
+        dataMap.put(Constants.JOB_TASK_PARAM, taskInfo.getParams());
+        TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
+                .withIdentity(taskInfo.getName(), taskInfo.getGroup())
+                .usingJobData(dataMap).withDescription(taskInfo.getDescription());
+
+        if (taskInfo.getStartAtType() == 1) {
+            triggerBuilder.startNow();
+        } else {
+            triggerBuilder.startAt(taskInfo.getStartAt());
+        }
+        if (taskInfo.getEndAtType() != 1) {
+            triggerBuilder.endAt(taskInfo.getEndAt());
+        }
+        if(taskInfo.getScheduleType() == 1){
+            SimpleScheduleBuilder simpleScheduleBuilder = buildSimpleScheduler(taskInfo.getScheduleTypeSimpleOptions());
+            SimpleTrigger trigger = triggerBuilder.withSchedule(simpleScheduleBuilder).build();
+            scheduler.rescheduleJob(trigger.getKey(),trigger);
+        }else if(taskInfo.getScheduleType() == 2){
+            CalendarIntervalScheduleBuilder builder = buildCalendarScheduler(taskInfo.getScheduleTypeCalendarIntervalOptions());
+            CalendarIntervalTrigger trigger = triggerBuilder.withSchedule(builder).build();
+            scheduler.rescheduleJob(trigger.getKey(),trigger);
+        }else if(taskInfo.getScheduleType() == 3){
+            DailyTimeIntervalScheduleBuilder builder = buildDailyTimeScheduler(taskInfo.getScheduleTypeDailyTimeIntervalOptions());
+            DailyTimeIntervalTrigger trigger = triggerBuilder.withSchedule(builder).build();
+            scheduler.rescheduleJob(trigger.getKey(),trigger);
+        }else if(taskInfo.getScheduleType() == 4){
+            TaskWrapper.ScheduleTypeCronOptions options = taskInfo.getScheduleTypeCronOptions();
+            if(!CronExpression.isValidExpression(options.getCron())){
+                throw new RoseException(Constants.error_code_invalid_params, "Cron表达式有误");
+            }
+            CronScheduleBuilder builder = buildCronSchedule(options);
+            CronTrigger trigger = triggerBuilder.withSchedule(builder).build();
+            scheduler.rescheduleJob(trigger.getKey(),trigger);
+        }
     }
 }

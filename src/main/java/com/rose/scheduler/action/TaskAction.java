@@ -1,6 +1,8 @@
 package com.rose.scheduler.action;
 
+import com.alibaba.fastjson.JSON;
 import com.rose.scheduler.entity.*;
+import com.rose.scheduler.exception.RoseException;
 import com.rose.scheduler.manager.TaskManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +46,16 @@ public class TaskAction {
 
     @PostMapping("task/edit")
     public Response edit(@RequestBody TaskWrapper taskInfo) throws Exception{
+        taskInfo.setName(StringUtils.trimToEmpty(taskInfo.getName()));
+        taskInfo.setGroup(StringUtils.trimToEmpty(taskInfo.getGroup()));
+        if (StringUtils.isNotEmpty(taskInfo.getParams())) {
+            try {
+                JSON.parseObject(taskInfo.getParams());
+            } catch (Exception e) {
+                throw new RoseException(RoseException.error_code_invalid_params, "任务参数输入有误，必须是JSON格式");
+            }
+        }
+        taskManager.editTask(taskInfo);
         return new Response("ok");
     }
 
