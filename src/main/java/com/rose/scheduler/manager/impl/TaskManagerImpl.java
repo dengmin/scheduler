@@ -11,10 +11,13 @@ import com.rose.scheduler.entity.TaskWrapper;
 import com.rose.scheduler.exception.RoseException;
 import com.rose.scheduler.manager.TaskManager;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.quartz.*;
+import org.quartz.spi.OperableTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -88,8 +91,15 @@ public class TaskManagerImpl implements TaskManager{
 
     @Override
     public void start(String name, String group) throws Exception{
+        JobKey jobKey = new JobKey(name, group);
         Trigger trigger = scheduler.getTrigger(new TriggerKey(name, group));
-        scheduler.scheduleJob(trigger);
+        JobDataMap jobDataMap = trigger.getJobDataMap();
+        String randomTriggerName = DateFormatUtils.format(new Date(), "yyyyMMddHHmmssSSS");
+        OperableTrigger operableTrigger = (OperableTrigger) newTrigger().withIdentity(randomTriggerName, "test").forJob(jobKey).withDescription("手动执行【" + group + "." + name + "】").build();
+        if (jobDataMap != null) {
+            operableTrigger.setJobDataMap(jobDataMap);
+        }
+        scheduler.scheduleJob(operableTrigger);
     }
 
     @Override

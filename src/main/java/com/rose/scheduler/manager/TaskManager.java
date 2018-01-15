@@ -13,6 +13,7 @@ public interface TaskManager {
 
     public void createTask(TaskWrapper taskInfo) throws Exception;
 
+    //立即执行
     public void start(String name, String group) throws Exception;
 
     public void pause(String name, String group);
