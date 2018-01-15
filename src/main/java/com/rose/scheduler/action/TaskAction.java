@@ -6,13 +6,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class TaskAction {
     private Logger logger = LoggerFactory.getLogger(TaskAction.class);
 
@@ -23,13 +19,11 @@ public class TaskAction {
         this.taskManager = taskManager;
     }
 
-    @ResponseBody
     @GetMapping("/task/groups")
     public Response taskGroups() throws Exception {
         return new Response(taskManager.getGroups());
     }
 
-    @ResponseBody
     @GetMapping("/task/list")
     public Response taskList(String state, String taskName, String taskGroup, Integer page) throws Exception {
         state = StringUtils.trimToNull(state);
@@ -41,7 +35,6 @@ public class TaskAction {
     }
 
     @PostMapping("/task/create")
-    @ResponseBody
     public Response task(@RequestBody TaskWrapper taskInfo) throws Exception{
         taskInfo.setName(StringUtils.trimToEmpty(taskInfo.getName()));
         taskInfo.setGroup(StringUtils.trimToEmpty(taskInfo.getGroup()));
@@ -50,14 +43,12 @@ public class TaskAction {
     }
 
     @PostMapping("task/edit")
-    @ResponseBody
     public Response edit(@RequestBody TaskWrapper taskInfo) throws Exception{
         return new Response("ok");
     }
 
     @PostMapping("/task/delete")
-    @ResponseBody
-    public Response delteTask(String name,String group) throws Exception{
+    public Response deleteTask(String name,String group) throws Exception{
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
         taskManager.delete(name, group);
@@ -65,7 +56,6 @@ public class TaskAction {
     }
 
     @PostMapping("/task/pause")
-    @ResponseBody
     public Response pauseTask(String name, String group) throws Exception{
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
@@ -74,7 +64,6 @@ public class TaskAction {
     }
 
     @PostMapping("/task/execute")
-    @ResponseBody
     public Response startTask(String name, String group) throws Exception{
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
@@ -83,7 +72,6 @@ public class TaskAction {
     }
 
     @PostMapping("/task/resume")
-    @ResponseBody
     public Response resumeTask(String name, String group) throws Exception{
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
@@ -92,7 +80,6 @@ public class TaskAction {
     }
 
     @GetMapping("/task/detail")
-    @ResponseBody
     public Response detail(String name, String group) throws Exception{
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
@@ -101,7 +88,6 @@ public class TaskAction {
     }
 
     @GetMapping("/task/history")
-    @ResponseBody
     public Response history(String name, String group, Long beginTime, Long endTime,Integer page){
         name = StringUtils.trimToNull(name);
         group = StringUtils.trimToNull(group);
@@ -111,7 +97,6 @@ public class TaskAction {
     }
 
     @GetMapping("/task/history/detail")
-    @ResponseBody
     public Response historyDetail(String fireId){
         TaskHistory history = taskManager.detail(fireId);
         return new Response(history);
