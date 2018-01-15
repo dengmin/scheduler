@@ -1,6 +1,13 @@
 spring:
   profiles:
     active: test
+  freemarker:
+    cache: false
+    suffix: .html
+    expose-request-attributes: true
+    request-context-attribute: request
+    check-template-location: true
+    charset: utf-8
 server:
   port: 8899
 
