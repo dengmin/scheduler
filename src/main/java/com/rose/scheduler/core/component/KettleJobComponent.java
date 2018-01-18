@@ -24,7 +24,7 @@ public class KettleJobComponent extends JobComponent{
     @Override
     public String getParamTemplate() {
         return "{\r" +
-                "\tfile:''\r" +
+                "    file:''\r" +
                 "}";
     }
 
@@ -38,7 +38,6 @@ public class KettleJobComponent extends JobComponent{
             String file = taskParam.getString("file");
             String process = config.getHome() +File.separator+"kitchen.sh";
             String command = process + " /file " + kettleWork + File.separator + file +" /level Basic";
-            System.out.println(command);
             String output = TaskExecUtil.execCommand(command);
             context.log(output);
         }catch (Exception e){
