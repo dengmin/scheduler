@@ -3,6 +3,7 @@ package com.rose.scheduler.core.component;
 import com.alibaba.fastjson.JSONObject;
 import com.rose.scheduler.common.Constants;
 import com.rose.scheduler.core.TaskExecContext;
+import com.rose.scheduler.core.TaskExecUtil;
 import com.rose.scheduler.exception.RoseException;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -38,22 +39,9 @@ public class ShellJobComponent extends JobComponent{
         JSONObject taskParam = context.getTaskParam();
         try {
             String shell = taskParam.getString("shell");
-
-            Runtime runtime = Runtime.getRuntime();
-            Process process = runtime.exec(shell);
-            InputStream stderr = process.getInputStream();
-            InputStreamReader isr = new InputStreamReader(stderr);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            StringBuilder output = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                output.append(line).append("\r");
-            }
-            br.close();
-            isr.close();
-            stderr.close();
+            String output = TaskExecUtil.execCommand(shell);
             context.log("output:");
-            context.log(output.toString());
+            context.log(output);
             return true;
         }catch (Exception e){
             e.printStackTrace();

@@ -3,6 +3,7 @@ package com.rose.scheduler.core;
 import com.rose.scheduler.common.AppCtx;
 import com.rose.scheduler.core.component.HttpJobComponent;
 import com.rose.scheduler.core.component.JobComponent;
+import com.rose.scheduler.core.component.KettleJobComponent;
 import com.rose.scheduler.core.component.ShellJobComponent;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -23,6 +24,8 @@ public class RoseSchedulerInit {
         JobComponent jobComponent = new HttpJobComponent();
         JobStore.jobs.put(jobComponent.getName(), jobComponent);
         jobComponent = new ShellJobComponent();
+        JobStore.jobs.put(jobComponent.getName(), jobComponent);
+        jobComponent = new KettleJobComponent();
         JobStore.jobs.put(jobComponent.getName(), jobComponent);
     }
 
